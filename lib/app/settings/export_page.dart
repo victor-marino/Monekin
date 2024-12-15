@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:monekin/core/database/services/transaction/transaction_service.dart';
 import 'package:monekin/core/presentation/widgets/dates/outlinedButtonStacked.dart';
 import 'package:monekin/core/presentation/widgets/persistent_footer_button.dart';
 import 'package:monekin/core/presentation/widgets/transaction_filter/transaction_filters.dart';
+import 'package:monekin/core/utils/get_default_backup_path.dart';
 import 'package:monekin/i18n/translations.g.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../../core/database/backup/backup_database_service.dart';
 
@@ -20,6 +24,7 @@ class _ExportDataPageState extends State<ExportDataPage> {
   _ExportFormats selectedExportFormat = _ExportFormats.db;
 
   TransactionFilters filters = const TransactionFilters();
+  TextEditingController savePathTextController = TextEditingController();
 
   Widget cardSelector({
     required _ExportFormats exportFormat,
@@ -54,6 +59,28 @@ class _ExportDataPageState extends State<ExportDataPage> {
     );
   }
 
+  Future<void> getDefaultDownloadPath() async {
+    // savePathTextController.text = await getDownloadPath();
+    savePathTextController.text = await getDefaultBackupPath();
+  }
+
+  Future<void> chooseDirectory() async {
+    // String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    // FilePickerResult? result =
+    //     await FilePicker.platform.pickFiles(type: FileType.any);
+    String? result = await FilePicker.platform
+        .getDirectoryPath(initialDirectory: savePathTextController.text);
+    if (result != null) {
+      savePathTextController.text = '$result/';
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDefaultDownloadPath();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
@@ -71,7 +98,7 @@ class _ExportDataPageState extends State<ExportDataPage> {
 
               if (selectedExportFormat == _ExportFormats.db) {
                 await BackupDatabaseService()
-                    .downloadDatabaseFile(context)
+                    .backupDatabaseFile(context, savePathTextController.text)
                     .then((value) {
                   print('EEEEEEEEEEE');
                 }).catchError((err) {
@@ -81,6 +108,7 @@ class _ExportDataPageState extends State<ExportDataPage> {
                 await BackupDatabaseService()
                     .exportSpreadsheet(
                         context,
+                        savePathTextController.text,
                         await TransactionService.instance
                             .getTransactions(filters: filters)
                             .first)
@@ -101,6 +129,9 @@ class _ExportDataPageState extends State<ExportDataPage> {
           padding: const EdgeInsets.only(bottom: 12, top: 16),
           child: Column(
             children: [
+              TextField(controller: savePathTextController, readOnly: true),
+              MaterialButton(
+                  onPressed: chooseDirectory, child: const Text("CHANGE")),
               cardSelector(
                 exportFormat: _ExportFormats.db,
                 title: t.backup.export.all,
