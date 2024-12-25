@@ -1,15 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:monekin/core/database/services/transaction/transaction_service.dart';
+import 'package:monekin/core/database/backup/backup_database_service.dart';
 import 'package:monekin/core/presentation/widgets/dates/outlinedButtonStacked.dart';
 import 'package:monekin/core/presentation/widgets/persistent_footer_button.dart';
 import 'package:monekin/core/presentation/widgets/transaction_filter/transaction_filters.dart';
 import 'package:monekin/core/utils/get_default_backup_path.dart';
 import 'package:monekin/i18n/translations.g.dart';
 import 'package:file_picker/file_picker.dart';
-
-import '../../core/database/backup/backup_database_service.dart';
 
 enum _ExportFormats { csv, db }
 
@@ -59,12 +56,12 @@ class _ExportDataPageState extends State<ExportDataPage> {
     );
   }
 
-  Future<void> getDefaultDownloadPath() async {
+  Future<void> setDefaultBackupPath() async {
     // savePathTextController.text = await getDownloadPath();
     savePathTextController.text = await getDefaultBackupPath();
   }
 
-  Future<void> chooseDirectory() async {
+  Future<void> pickDirectory() async {
     // String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
     // FilePickerResult? result =
     //     await FilePicker.platform.pickFiles(type: FileType.any);
@@ -78,7 +75,7 @@ class _ExportDataPageState extends State<ExportDataPage> {
   @override
   void initState() {
     super.initState();
-    getDefaultDownloadPath();
+    setDefaultBackupPath();
   }
 
   @override
@@ -125,33 +122,38 @@ class _ExportDataPageState extends State<ExportDataPage> {
             },
           ))
         ],
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 12, top: 16),
-          child: Column(
-            children: [
-              TextField(controller: savePathTextController, readOnly: true),
-              MaterialButton(
-                  onPressed: chooseDirectory, child: const Text("CHANGE")),
-              cardSelector(
-                exportFormat: _ExportFormats.db,
-                title: t.backup.export.all,
-                descr: t.backup.export.all_descr,
+        body: Column(
+          children: [
+            cardSelector(
+              exportFormat: _ExportFormats.db,
+              title: t.backup.export.all,
+              descr: t.backup.export.all_descr,
+            ),
+            cardSelector(
+              exportFormat: _ExportFormats.csv,
+              title: t.backup.export.transactions,
+              descr: t.backup.export.transactions_descr,
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12, left: 16, right: 16),
+              child: TextField(
+                controller: savePathTextController,
+                readOnly: true,
+                onTap: pickDirectory,
+                decoration: const InputDecoration(
+                    labelText: 'Backup folder',
+                    suffixIcon: Icon(Icons.folder_open_rounded)),
               ),
-              cardSelector(
-                exportFormat: _ExportFormats.csv,
-                title: t.backup.export.transactions,
-                descr: t.backup.export.transactions_descr,
-              ),
-
-              // * -----------------------------------
-              // * -----------------------------------
-              // * -----------------------------------
-              // TODO: --------- ADD FILTERS ---------
-              // * -----------------------------------
-              // * -----------------------------------
-              // * -----------------------------------
-            ],
-          ),
+            )
+            // * -----------------------------------
+            // * -----------------------------------
+            // * -----------------------------------
+            // TODO: --------- ADD FILTERS ---------
+            // * -----------------------------------
+            // * -----------------------------------
+            // * -----------------------------------
+          ],
         ));
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:monekin/app/settings/automatic_backups_page.dart';
 import 'package:monekin/app/settings/export_page.dart';
 import 'package:monekin/app/settings/import_csv.dart';
 import 'package:monekin/core/database/app_db.dart';
@@ -91,6 +92,14 @@ class BackupSettingsPage extends StatelessWidget {
               minVerticalPadding: 16,
               onTap: () {
                 RouteUtils.pushRoute(context, const ExportDataPage());
+              },
+            ),
+            ListTile(
+              title: Text('Automatic backups'),
+              subtitle: Text('Schedule automatic backups'),
+              minVerticalPadding: 16,
+              onTap: () {
+                RouteUtils.pushRoute(context, const AutomaticBackupsPage());
               },
             ),
             createListSeparator(context, t.backup.about.title),
