@@ -95,8 +95,16 @@ class BackupSettingsPage extends StatelessWidget {
               },
             ),
             ListTile(
-              title: Text('Automatic backups'),
-              subtitle: Text('Schedule automatic backups'),
+              title: Text('Local backups'),
+              subtitle: Text('Enabled', style: TextStyle(color: Colors.green),),
+              minVerticalPadding: 16,
+              onTap: () {
+                RouteUtils.pushRoute(context, const AutomaticBackupsPage());
+              },
+            ),
+            ListTile(
+              title: Text('Cloud backups'),
+              subtitle: Text('Not enabled'),
               minVerticalPadding: 16,
               onTap: () {
                 RouteUtils.pushRoute(context, const AutomaticBackupsPage());
